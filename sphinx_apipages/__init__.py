@@ -27,9 +27,14 @@ package_dir = os.path.abspath(os.path.dirname(__file__))
 # ===== MAIN FUNCTION SPHINX EXTENSION ====================================
 def setup(app: sphinx.application.Sphinx):
     r"""Modelcard Sphinx extension."""
+    # Load dependent extensions
+    app.setup_extension("sphinx.ext.autodoc")
+    app.setup_extension("sphinx.ext.autosummary")
+
     # Add config values
     app.add_config_value("apipages_src_dir", "docs/api-src", False)
     app.add_config_value("apipages_dst_dir", "docs/api", False)
+    app.add_config_value("apipages_hidden_methods", ["__call__"], False)
 
     # Extend templates_path for autosummary templates
     templates_path = audeer.path(package_dir, "templates")
@@ -37,6 +42,15 @@ def setup(app: sphinx.application.Sphinx):
         app.config.templates_path.append(templates_path)
     else:
         app.config.templates_path = templates_path
+
+    # Disable auto-generation of TOC entries in the API
+    # https://github.com/sphinx-doc/sphinx/issues/6316
+    app.config.toc_object_entries = False
+
+    # Make apipages_hidden_methods visible in templates
+    app.config.html_context = {
+        "hidden_methods": app.config.apipages_hidden_methods,
+    }
 
     # Connect builder
     app.connect("builder-inited", builder_inited)
