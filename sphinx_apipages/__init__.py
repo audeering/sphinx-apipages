@@ -48,7 +48,7 @@ def setup(app: sphinx.application.Sphinx):
     app.config.toc_object_entries = False
 
     # Make apipages_hidden_methods visible in templates
-    app.config.html_context = {
+    app.config.autosummary_context = {
         "hidden_methods": app.config.apipages_hidden_methods,
     }
 
