@@ -55,7 +55,7 @@ def setup(app: sphinx.application.Sphinx):
     # Connect builder
     app.connect("builder-inited", builder_inited)
 
-    return {"version": __version__, "parallel_read_safe": True}
+    return {"version": __version__, "parallel_read_safe": False}
 
 
 # ===== SPHINX EXTENSION FUNCTIONS ========================================
@@ -88,4 +88,5 @@ def builder_inited(app: sphinx.application.Sphinx):
                 not os.path.exists(dst_file)  # new file
                 or not filecmp.cmp(src_file, dst_file)  # changed file
             ):
-                shutil.copyfile(src_file, dst_file)  # Find model cards
+                shutil.copyfile(src_file, dst_file)
+                app.config.autosummary_generate.append(dst_file)
