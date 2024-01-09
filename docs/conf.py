@@ -38,6 +38,14 @@ extensions = [
 
 napoleon_use_ivar = True  # List of class attributes
 # autodoc_inherit_docstrings = False  # disable docstring inheritance
+# Manually configure files
+# for which autosummaries should be created,
+# to skip `usage.rst`
+autosummary_generate = [
+    "api/audb.Repository.rst",
+    "api/audb.repository.rst",
+    "api/audb.rst",
+]
 intersphinx_mapping = {
     "audb": ("https://audeering.github.io/audb/", None),
 }
