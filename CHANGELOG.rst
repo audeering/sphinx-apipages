@@ -7,6 +7,14 @@ The format is based on `Keep a Changelog`_,
 and this project adheres to `Semantic Versioning`_.
 
 
+Version 0.1.2 (2024-01-10)
+--------------------------
+
+* Fixed: taking into account
+  ``apipages_hidden_methods``
+  config variable
+
+
 Version 0.1.1 (2024-01-10)
 --------------------------
 
