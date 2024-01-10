@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                v0.1.0
+                v0.1.1
               </div>
             
           
@@ -207,10 +207,10 @@ E.g. you can create a file
 to specify how classes are rendered.
 You will need to add <code class="docutils literal notranslate"><span class="pre">templates_path</span> <span class="pre">=</span> <span class="pre">[&quot;_templates&quot;]</span></code>
 to your <a class="reference external" href="https://www.sphinx-doc.org">sphinx</a> config file
-(e.g. <code class="docutils literal notranslate"><span class="pre">docs/conf.py</span></code>).</p>
-<p>Inside the template you can access the <code class="docutils literal notranslate"><span class="pre">apipages_hidden_methods</span></code> list
-by <code class="docutils literal notranslate"><span class="pre">hidden_methods</span></code>.
-The default template for classes is:</p>
+(e.g. <code class="docutils literal notranslate"><span class="pre">docs/conf.py</span></code>).
+Inside the template you can access the <code class="docutils literal notranslate"><span class="pre">apipages_hidden_methods</span></code> list
+by <code class="docutils literal notranslate"><span class="pre">hidden_methods</span></code>.</p>
+<p>The default templates for classes is <code class="docutils literal notranslate"><span class="pre">autosummary/class.rst</span></code>:</p>
 <div class="highlight-rst notranslate"><div class="highlight"><pre><span></span>{{ objname | escape | underline}}
 
 <span class="p">..</span> <span class="ow">currentmodule</span><span class="p">::</span> {{ module }}
@@ -230,6 +230,22 @@ The default template for classes is:</p>
     {% endif %}
 {%- endfor %}
 {% endblock %}
+</pre></div>
+</div>
+<p>The default template for functions is <code class="docutils literal notranslate"><span class="pre">autosummary/function.rst</span></code>:</p>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span>{{ (name + &#39;()&#39;) | escape | underline}}
+
+<span class="p">..</span> <span class="ow">currentmodule</span><span class="p">::</span> {{ module }}
+
+<span class="cp">.. auto{{ objtype }}:: {{ fullname }}</span>
+</pre></div>
+</div>
+<p>The default template otherwise is <code class="docutils literal notranslate"><span class="pre">autosummary/base.rst</span></code>:</p>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span>{{ name | escape | underline}}
+
+<span class="p">..</span> <span class="ow">currentmodule</span><span class="p">::</span> {{ module }}
+
+<span class="cp">.. auto{{ objtype }}:: {{ fullname }}</span>
 </pre></div>
 </div>
 </div>

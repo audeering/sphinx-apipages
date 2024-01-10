@@ -68,32 +68,23 @@ to specify how classes are rendered.
 You will need to add ``templates_path = ["_templates"]``
 to your sphinx_ config file
 (e.g. ``docs/conf.py``).
-
 Inside the template you can access the ``apipages_hidden_methods`` list
 by ``hidden_methods``.
-The default template for classes is:
 
-.. code-block:: rst
+The default templates for classes is ``autosummary/class.rst``:
 
-    {{ objname | escape | underline}}
+.. literalinclude:: ../sphinx_apipages/templates/autosummary/class.rst
+    :language: rst
 
-    .. currentmodule:: {{ module }}
+The default template for functions is ``autosummary/function.rst``:
 
-    .. autoclass:: {{ objname }}
+.. literalinclude:: ../sphinx_apipages/templates/autosummary/function.rst
+    :language: rst
 
-    {% block methods %}
-    {%- for item in (all_methods + attributes)|sort %}
-        {%- if not item.startswith('_') or item in hidden_methods %}
-            {%- if item in all_methods %}
-    {{ (item + '()') | escape | underline(line='-') }}
-    .. automethod:: {{ name }}.{{ item }}
-            {%- elif item in attributes %}
-    {{ item | escape | underline(line='-') }}
-    .. autoattribute:: {{ name }}.{{ item }}
-            {%- endif %}
-        {% endif %}
-    {%- endfor %}
-    {% endblock %}
+The default template otherwise is ``autosummary/base.rst``:
+
+.. literalinclude:: ../sphinx_apipages/templates/autosummary/base.rst
+    :language: rst
 
 
 .. _sphinx: https://www.sphinx-doc.org
