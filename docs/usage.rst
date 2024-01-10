@@ -23,36 +23,19 @@ added by ``sphinx_apipages``.
 For each (sub-)module
 you would like to generate API documentation,
 add a file with the name of the module
-to ``docs/api-src``
+to ``docs/api-src/``
 and list the functions/classes
-to include with ``autosummary``.
-E.g. assume your Python module is named ``foo``,
-and contains the class ``foo.Bar``
-and the function ``foo.bar``.
-Then you would create ``docs/api-src/foo.rst``
-containing:
-
-.. code-block:: rst
-
-    foo
-    ===
-
-    .. automodule:: foo
-
-    .. autosummary::
-        :toctree:
-        :nosignatures:
-
-        Bar
-        bar
+to include with ``autosummary``,
+compare :ref:`API documentation example with audb <audb>`.
 
 When building the documentation,
-``sphinx_apipages`` will generate RST files
+``sphinx_apipages`` will copy all files
+from ``docs/api-src/``
+to ``docs/api/``,
+and generate RST files
 for each class and function,
-and store them under ``docs/api``.
-For the example above it will generate
-``docs/api/foo.Bar.rst``
-and ``docs/api/foo.bar.rst``.
+and store them under ``docs/api/``
+as well.
 
 
 Configuration
