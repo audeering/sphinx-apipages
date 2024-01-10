@@ -36,13 +36,6 @@ def setup(app: sphinx.application.Sphinx):
     app.add_config_value("apipages_dst_dir", "docs/api", False)
     app.add_config_value("apipages_hidden_methods", ["__call__"], False)
 
-    # Extend templates_path for autosummary templates
-    templates_path = audeer.path(package_dir, "templates")
-    if hasattr(app.config, "templates_path"):
-        app.config.templates_path.append(templates_path)
-    else:
-        app.config.templates_path = templates_path
-
     # Disable auto-generation of TOC entries in the API
     # https://github.com/sphinx-doc/sphinx/issues/6316
     app.config.toc_object_entries = False
@@ -70,6 +63,13 @@ def config_inited(app: sphinx.application.Sphinx, config):
     # Read config values
     src_dir = app.config.apipages_src_dir
     dst_dir = app.config.apipages_dst_dir
+
+    # Extend templates_path for autosummary templates
+    templates_path = audeer.path(package_dir, "templates")
+    if hasattr(app.config, "templates_path"):
+        app.config.templates_path.append(templates_path)
+    else:
+        app.config.templates_path = templates_path
 
     # Copy API (sub-)module RST files to dst folder
     if os.path.exists(src_dir):
