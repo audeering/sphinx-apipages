@@ -1,0 +1,815 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>audb.core.api &mdash; sphinx-apipages</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../../_static/favicon.png"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/audeering.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    
+  
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          <a href="../../../index.html">
+          
+            <img src="../../../_static/images/audeering.png" class="logo" alt="audEERING"/>
+          
+          
+            <span> sphinx-apipages</span>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Example API Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/audb.html">audb</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sphinx-apipages</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>audb.core.api</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for audb.core.api</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">import</span> <span class="nn">audbackend</span>
+<span class="kn">import</span> <span class="nn">audeer</span>
+<span class="kn">import</span> <span class="nn">audformat</span>
+
+<span class="kn">from</span> <span class="nn">audb.core</span> <span class="kn">import</span> <span class="n">define</span>
+<span class="kn">from</span> <span class="nn">audb.core</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">audb.core.cache</span> <span class="kn">import</span> <span class="n">database_cache_root</span>
+<span class="kn">from</span> <span class="nn">audb.core.cache</span> <span class="kn">import</span> <span class="n">default_cache_root</span>
+<span class="kn">from</span> <span class="nn">audb.core.config</span> <span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">audb.core.dependencies</span> <span class="kn">import</span> <span class="n">Dependencies</span>
+<span class="kn">from</span> <span class="nn">audb.core.flavor</span> <span class="kn">import</span> <span class="n">Flavor</span>
+<span class="kn">from</span> <span class="nn">audb.core.lock</span> <span class="kn">import</span> <span class="n">FolderLock</span>
+<span class="kn">from</span> <span class="nn">audb.core.repository</span> <span class="kn">import</span> <span class="n">Repository</span>
+
+
+<span class="k">def</span> <span class="nf">available</span><span class="p">(</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">only_latest</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;List all databases that are available to the user.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        only_latest: include only latest version of database</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        table with database name as index,</span>
+<span class="sd">        and backend, host, repository, version as columns</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; audb.available(only_latest=True)</span>
+<span class="sd">                   backend                                    host   repository version</span>
+<span class="sd">        name</span>
+<span class="sd">        emodb  artifactory  https://audeering.jfrog.io/artifactory  data-public   1.4.1</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
+    <span class="n">databases</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">repository</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">REPOSITORIES</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">backend</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">access_backend</span><span class="p">(</span><span class="n">repository</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">audbackend</span><span class="o">.</span><span class="n">Artifactory</span><span class="p">):</span>
+                <span class="c1"># avoid backend.ls(&#39;/&#39;)</span>
+                <span class="c1"># which is very slow on Artifactory</span>
+                <span class="c1"># see https://github.com/audeering/audbackend/issues/132</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">backend</span><span class="o">.</span><span class="n">_repo</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span>
+                    <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">p</span> <span class="o">/</span> <span class="s1">&#39;db&#39;</span><span class="p">]:</span>
+                        <span class="n">databases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="p">[</span>
+                                <span class="n">name</span><span class="p">,</span>
+                                <span class="n">repository</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span>
+                                <span class="n">repository</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
+                                <span class="n">repository</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                <span class="n">version</span><span class="p">,</span>
+                            <span class="p">]</span>
+                        <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">version</span> <span class="ow">in</span> <span class="n">backend</span><span class="o">.</span><span class="n">ls</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">define</span><span class="o">.</span><span class="n">HEADER_FILE</span><span class="p">):</span>
+                        <span class="n">name</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">databases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="p">[</span>
+                                <span class="n">name</span><span class="p">,</span>
+                                <span class="n">repository</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span>
+                                <span class="n">repository</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
+                                <span class="n">repository</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                <span class="n">version</span><span class="p">,</span>
+                            <span class="p">]</span>
+                        <span class="p">)</span>
+        <span class="k">except</span> <span class="n">audbackend</span><span class="o">.</span><span class="n">BackendError</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span>
+        <span class="n">databases</span><span class="p">,</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;backend&#39;</span><span class="p">,</span> <span class="s1">&#39;host&#39;</span><span class="p">,</span> <span class="s1">&#39;repository&#39;</span><span class="p">,</span> <span class="s1">&#39;version&#39;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">only_latest</span><span class="p">:</span>
+        <span class="c1"># Pick latest version for every database, see</span>
+        <span class="c1"># https://stackoverflow.com/a/53842408</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">audeer</span><span class="o">.</span><span class="n">sort_versions</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Sort by version</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">],</span> <span class="n">key</span><span class="o">=</span><span class="n">audeer</span><span class="o">.</span><span class="n">sort_versions</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">cached</span><span class="p">(</span>
+        <span class="n">cache_root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">shared</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;List available databases and flavors in the cache.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cache_root: cache folder where databases are stored.</span>
+<span class="sd">            If not set :meth:`audb.default_cache_root` is used</span>
+<span class="sd">        name: name of database.</span>
+<span class="sd">            If provided,</span>
+<span class="sd">            it will show only cached versions of that database</span>
+<span class="sd">        shared: include databases from shared cache</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        cached databases</span>
+<span class="sd">        with cache path as index,</span>
+<span class="sd">        and name,</span>
+<span class="sd">        flavor_id,</span>
+<span class="sd">        version,</span>
+<span class="sd">        complete,</span>
+<span class="sd">        bit_depth,</span>
+<span class="sd">        channels,</span>
+<span class="sd">        format,</span>
+<span class="sd">        mixdown,</span>
+<span class="sd">        sampling_rate</span>
+<span class="sd">        as columns</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; db = audb.load(</span>
+<span class="sd">        ...     &#39;emodb&#39;,</span>
+<span class="sd">        ...     version=&#39;1.4.1&#39;,</span>
+<span class="sd">        ...     only_metadata=True,</span>
+<span class="sd">        ...     full_path=False,</span>
+<span class="sd">        ...     verbose=False,</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; df = cached()</span>
+<span class="sd">        &gt;&gt;&gt; print(df.iloc[0].to_string())</span>
+<span class="sd">        name                emodb</span>
+<span class="sd">        flavor_id        d3b62a9b</span>
+<span class="sd">        version             1.4.1</span>
+<span class="sd">        complete            False</span>
+<span class="sd">        bit_depth            None</span>
+<span class="sd">        channels             None</span>
+<span class="sd">        format               None</span>
+<span class="sd">        mixdown             False</span>
+<span class="sd">        sampling_rate        None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
+    <span class="n">cache_root</span> <span class="o">=</span> <span class="n">audeer</span><span class="o">.</span><span class="n">path</span><span class="p">(</span>
+        <span class="n">cache_root</span> <span class="ow">or</span> <span class="n">default_cache_root</span><span class="p">(</span><span class="n">shared</span><span class="o">=</span><span class="n">shared</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;name&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;flavor_id&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;version&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;complete&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;bit_depth&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;channels&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;format&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;mixdown&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;sampling_rate&#39;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([],</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cache_root</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="n">database_paths</span> <span class="o">=</span> <span class="n">audeer</span><span class="o">.</span><span class="n">list_dir_names</span><span class="p">(</span><span class="n">cache_root</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">database_path</span> <span class="ow">in</span> <span class="n">database_paths</span><span class="p">:</span>
+        <span class="n">database</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">database_path</span><span class="p">)</span>
+
+        <span class="c1"># Limit to databases of given name</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">database</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">version_paths</span> <span class="o">=</span> <span class="n">audeer</span><span class="o">.</span><span class="n">list_dir_names</span><span class="p">(</span><span class="n">database_path</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">version_path</span> <span class="ow">in</span> <span class="n">version_paths</span><span class="p">:</span>
+            <span class="n">version</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">version_path</span><span class="p">)</span>
+
+            <span class="c1"># Skip tmp folder (e.g. 1.0.0~)</span>
+            <span class="k">if</span> <span class="n">version</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;~&#39;</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+                <span class="k">continue</span>
+
+            <span class="n">flavor_id_paths</span> <span class="o">=</span> <span class="n">audeer</span><span class="o">.</span><span class="n">list_dir_names</span><span class="p">(</span><span class="n">version_path</span><span class="p">)</span>
+
+            <span class="c1"># Skip old audb cache (e.g. 1 as flavor)</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="n">audeer</span><span class="o">.</span><span class="n">list_file_names</span><span class="p">(</span><span class="n">version_path</span><span class="p">)</span>
+            <span class="n">deps_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">version_path</span><span class="p">,</span> <span class="n">define</span><span class="o">.</span><span class="n">DEPENDENCIES_FILE</span><span class="p">)</span>
+            <span class="n">deps_path_cached</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">version_path</span><span class="p">,</span>
+                <span class="n">define</span><span class="o">.</span><span class="n">CACHED_DEPENDENCIES_FILE</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">deps_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">files</span> <span class="ow">and</span> <span class="n">deps_path_cached</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="c1"># Skip all cache entries</span>
+                <span class="c1"># that don&#39;t contain a db.csv or db.pkl file</span>
+                <span class="c1"># as those stem from audb&lt;1.0.0.</span>
+                <span class="c1"># We only look for db.csv</span>
+                <span class="c1"># as we switched to db.pkl with audb&gt;=1.0.5</span>
+                <span class="k">continue</span>  <span class="c1"># pragma: no cover</span>
+
+            <span class="k">for</span> <span class="n">flavor_id_path</span> <span class="ow">in</span> <span class="n">flavor_id_paths</span><span class="p">:</span>
+                <span class="n">flavor_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">flavor_id_path</span><span class="p">)</span>
+                <span class="n">files</span> <span class="o">=</span> <span class="n">audeer</span><span class="o">.</span><span class="n">list_file_names</span><span class="p">(</span><span class="n">flavor_id_path</span><span class="p">)</span>
+                <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">define</span><span class="o">.</span><span class="n">HEADER_FILE</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                    <span class="n">db</span> <span class="o">=</span> <span class="n">audformat</span><span class="o">.</span><span class="n">Database</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+                        <span class="n">flavor_id_path</span><span class="p">,</span>
+                        <span class="n">load_data</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">flavor</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;audb&#39;</span><span class="p">][</span><span class="s1">&#39;flavor&#39;</span><span class="p">]</span>
+                    <span class="n">complete</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;audb&#39;</span><span class="p">][</span><span class="s1">&#39;complete&#39;</span><span class="p">]</span>
+                    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">flavor_id_path</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">database</span><span class="p">,</span>
+                        <span class="n">flavor_id</span><span class="p">,</span>
+                        <span class="n">version</span><span class="p">,</span>
+                        <span class="n">complete</span><span class="p">,</span>
+                        <span class="n">flavor</span><span class="p">[</span><span class="s1">&#39;bit_depth&#39;</span><span class="p">],</span>
+                        <span class="n">flavor</span><span class="p">[</span><span class="s1">&#39;channels&#39;</span><span class="p">],</span>
+                        <span class="n">flavor</span><span class="p">[</span><span class="s1">&#39;format&#39;</span><span class="p">],</span>
+                        <span class="n">flavor</span><span class="p">[</span><span class="s1">&#39;mixdown&#39;</span><span class="p">],</span>
+                        <span class="n">flavor</span><span class="p">[</span><span class="s1">&#39;sampling_rate&#39;</span><span class="p">],</span>
+                    <span class="p">]</span>
+
+    <span class="c1"># Replace NaN with None</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">notnull</span><span class="p">(</span><span class="n">df</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">dependencies</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cache_root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dependencies</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Database dependencies.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: name of database</span>
+<span class="sd">        version: version of database</span>
+<span class="sd">        cache_root: cache folder where databases are stored.</span>
+<span class="sd">            If not set :meth:`audb.default_cache_root` is used</span>
+<span class="sd">        verbose: show debug messages</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dependency object</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; deps = dependencies(&#39;emodb&#39;, version=&#39;1.4.1&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; deps.version(&#39;db.emotion.csv&#39;)</span>
+<span class="sd">        &#39;1.1.0&#39;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="n">latest_version</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="n">db_root</span> <span class="o">=</span> <span class="n">database_cache_root</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">version</span><span class="p">,</span>
+        <span class="n">cache_root</span><span class="o">=</span><span class="n">cache_root</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">deps_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">db_root</span><span class="p">,</span> <span class="n">define</span><span class="o">.</span><span class="n">CACHED_DEPENDENCIES_FILE</span><span class="p">)</span>
+
+    <span class="n">deps</span> <span class="o">=</span> <span class="n">Dependencies</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">FolderLock</span><span class="p">(</span><span class="n">db_root</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">deps</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">deps_path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">EOFError</span><span class="p">):</span>
+            <span class="c1"># If loading pickled cached file fails, load again from backend</span>
+            <span class="n">backend</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">lookup_backend</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_root</span><span class="p">:</span>
+                <span class="n">archive</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">define</span><span class="o">.</span><span class="n">DB</span> <span class="o">+</span> <span class="s1">&#39;.zip&#39;</span><span class="p">)</span>
+                <span class="n">backend</span><span class="o">.</span><span class="n">get_archive</span><span class="p">(</span>
+                    <span class="n">archive</span><span class="p">,</span>
+                    <span class="n">tmp_root</span><span class="p">,</span>
+                    <span class="n">version</span><span class="p">,</span>
+                    <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">deps</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_root</span><span class="p">,</span> <span class="n">define</span><span class="o">.</span><span class="n">DEPENDENCIES_FILE</span><span class="p">))</span>
+                <span class="n">deps</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">deps_path</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">deps</span>
+
+
+<span class="k">def</span> <span class="nf">exists</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">bit_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">channels</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">mixdown</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">sampling_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">cache_root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Check if specified database flavor exists in local cache folder.</span>
+
+<span class="sd">    Does not check for any flavor of the requested database in the cache,</span>
+<span class="sd">    but only for a particular flavor.</span>
+<span class="sd">    Note, that using only the name, e.g. ``audb.exists(&#39;emodb&#39;)``</span>
+<span class="sd">    is also a single flavor.</span>
+
+<span class="sd">    To list all available flavors of a particular database, use:</span>
+
+<span class="sd">    .. code-block::</span>
+
+<span class="sd">        audb.cached(name=&#39;emodb&#39;)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: name of database</span>
+<span class="sd">        version: version string, latest if ``None``</span>
+<span class="sd">        bit_depth: bit depth, one of ``16``, ``24``, ``32``</span>
+<span class="sd">        channels: channel selection, see :func:`audresample.remix`</span>
+<span class="sd">        format: file format, one of ``&#39;flac&#39;``, ``&#39;wav&#39;``</span>
+<span class="sd">        mixdown: apply mono mix-down</span>
+<span class="sd">        sampling_rate: sampling rate in Hz, one of</span>
+<span class="sd">            ``8000``, ``16000``, ``22500``, ``44100``, ``48000``</span>
+<span class="sd">        cache_root: cache folder where databases are stored.</span>
+<span class="sd">            If not set :meth:`audb.default_cache_root` is used</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``True`` if database flavor exists</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; db = audb.load(</span>
+<span class="sd">        ...     &#39;emodb&#39;,</span>
+<span class="sd">        ...     version=&#39;1.4.1&#39;,</span>
+<span class="sd">        ...     only_metadata=True,</span>
+<span class="sd">        ...     verbose=False,</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; audb.exists(&#39;emodb&#39;, version=&#39;1.4.1&#39;)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; audb.exists(&#39;emodb&#39;, version=&#39;1.4.1&#39;, format=&#39;wav&#39;)</span>
+<span class="sd">        False</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="n">latest_version</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="n">relative_flavor_path</span> <span class="o">=</span> <span class="n">flavor_path</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">version</span><span class="p">,</span>
+        <span class="n">channels</span><span class="o">=</span><span class="n">channels</span><span class="p">,</span>
+        <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">,</span>
+        <span class="n">mixdown</span><span class="o">=</span><span class="n">mixdown</span><span class="p">,</span>
+        <span class="n">bit_depth</span><span class="o">=</span><span class="n">bit_depth</span><span class="p">,</span>
+        <span class="n">sampling_rate</span><span class="o">=</span><span class="n">sampling_rate</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">cache_roots</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">default_cache_root</span><span class="p">(</span><span class="kc">True</span><span class="p">),</span>  <span class="c1"># check shared cache first</span>
+        <span class="n">default_cache_root</span><span class="p">(</span><span class="kc">False</span><span class="p">),</span>
+    <span class="p">]</span> <span class="k">if</span> <span class="n">cache_root</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[</span><span class="n">cache_root</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">cache_root</span> <span class="ow">in</span> <span class="n">cache_roots</span><span class="p">:</span>
+        <span class="n">db_root</span> <span class="o">=</span> <span class="n">audeer</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">cache_root</span><span class="p">,</span> <span class="n">relative_flavor_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">db_root</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">def</span> <span class="nf">flavor_path</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">bit_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">channels</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">mixdown</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">sampling_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Flavor cache path.</span>
+
+<span class="sd">    Returns the path under which :func:`audb.load` stores a specific</span>
+<span class="sd">    flavor of a database in the cache folder, that is:</span>
+
+<span class="sd">     ``&lt;name&gt;/&lt;version&gt;/&lt;flavor-id&gt;/``</span>
+
+<span class="sd">    Note that the returned path is relative.</span>
+<span class="sd">    To get the absolute path, do:</span>
+
+<span class="sd">    .. code-block::</span>
+
+<span class="sd">        os.path.join(</span>
+<span class="sd">            audb.default_cache_root(...),</span>
+<span class="sd">            audb.flavor_path(...),</span>
+<span class="sd">        )</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: name of database</span>
+<span class="sd">        version: version string</span>
+<span class="sd">        bit_depth: bit depth, one of ``16``, ``24``, ``32``</span>
+<span class="sd">        channels: channel selection, see :func:`audresample.remix`</span>
+<span class="sd">        format: file format, one of ``&#39;flac&#39;``, ``&#39;wav&#39;``</span>
+<span class="sd">        mixdown: apply mono mix-down</span>
+<span class="sd">        sampling_rate: sampling rate in Hz, one of</span>
+<span class="sd">            ``8000``, ``16000``, ``22500``, ``44100``, ``48000``</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        flavor path relative to cache folder</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: if a non-supported ``bit_depth``,</span>
+<span class="sd">            ``format``,</span>
+<span class="sd">            or ``sampling_rate``</span>
+<span class="sd">            is requested</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; flavor_path(&#39;emodb&#39;, version=&#39;1.4.1&#39;).split(os.path.sep)</span>
+<span class="sd">        [&#39;emodb&#39;, &#39;1.4.1&#39;, &#39;d3b62a9b&#39;]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">flavor</span> <span class="o">=</span> <span class="n">Flavor</span><span class="p">(</span>
+        <span class="n">channels</span><span class="o">=</span><span class="n">channels</span><span class="p">,</span>
+        <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">,</span>
+        <span class="n">mixdown</span><span class="o">=</span><span class="n">mixdown</span><span class="p">,</span>
+        <span class="n">bit_depth</span><span class="o">=</span><span class="n">bit_depth</span><span class="p">,</span>
+        <span class="n">sampling_rate</span><span class="o">=</span><span class="n">sampling_rate</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">flavor</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">latest_version</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Latest version of database.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: name of database</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        version string</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError: if no version exists for the requested database</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; latest_version(&#39;emodb&#39;)</span>
+<span class="sd">        &#39;1.4.1&#39;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">vs</span> <span class="o">=</span> <span class="n">versions</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">vs</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Cannot find a version for database &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">vs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">remove_media</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">files</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Remove media from all versions.</span>
+
+<span class="sd">    Be careful,</span>
+<span class="sd">    this removes files from all published versions</span>
+<span class="sd">    on all backends.</span>
+<span class="sd">    Those files cannot be restored afterwards.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: name of database</span>
+<span class="sd">        files: list of files that should be removed</span>
+<span class="sd">        verbose: show debug messages</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">files</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="n">versions</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+
+        <span class="n">backend</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">lookup_backend</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">db_root</span><span class="p">:</span>
+
+            <span class="c1"># download dependencies</span>
+            <span class="n">archive</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">define</span><span class="o">.</span><span class="n">DB</span> <span class="o">+</span> <span class="s1">&#39;.zip&#39;</span><span class="p">)</span>
+            <span class="n">deps_path</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">get_archive</span><span class="p">(</span>
+                <span class="n">archive</span><span class="p">,</span>
+                <span class="n">db_root</span><span class="p">,</span>
+                <span class="n">version</span><span class="p">,</span>
+                <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">deps_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">db_root</span><span class="p">,</span> <span class="n">deps_path</span><span class="p">)</span>
+            <span class="n">deps</span> <span class="o">=</span> <span class="n">Dependencies</span><span class="p">()</span>
+            <span class="n">deps</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">deps_path</span><span class="p">)</span>
+            <span class="n">upload</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">audeer</span><span class="o">.</span><span class="n">progress_bar</span><span class="p">(</span>
+                <span class="n">files</span><span class="p">,</span>
+                <span class="n">disable</span><span class="o">=</span><span class="ow">not</span> <span class="n">verbose</span><span class="p">,</span>
+                <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Remove media from v</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="p">):</span>
+                <span class="k">if</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">deps</span><span class="o">.</span><span class="n">media</span><span class="p">:</span>
+                    <span class="n">archive</span> <span class="o">=</span> <span class="n">deps</span><span class="o">.</span><span class="n">archive</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+                    <span class="c1"># if archive exists in this version,</span>
+                    <span class="c1"># remove file from it and re-publish</span>
+                    <span class="n">remote_archive</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="s1">&#39;/&#39;</span><span class="p">,</span>
+                        <span class="n">name</span><span class="p">,</span>
+                        <span class="n">define</span><span class="o">.</span><span class="n">DEPEND_TYPE_NAMES</span><span class="p">[</span><span class="n">define</span><span class="o">.</span><span class="n">DependType</span><span class="o">.</span><span class="n">MEDIA</span><span class="p">],</span>
+                        <span class="n">archive</span> <span class="o">+</span> <span class="s1">&#39;.zip&#39;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">backend</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">remote_archive</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
+
+                        <span class="n">files_in_archive</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">get_archive</span><span class="p">(</span>
+                            <span class="n">remote_archive</span><span class="p">,</span>
+                            <span class="n">db_root</span><span class="p">,</span>
+                            <span class="n">version</span><span class="p">,</span>
+                        <span class="p">)</span>
+
+                        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;nt&#39;</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+                            <span class="n">files_in_archive</span> <span class="o">=</span> <span class="p">[</span>
+                                <span class="n">file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files_in_archive</span>
+                            <span class="p">]</span>
+
+                        <span class="c1"># skip if file was already deleted</span>
+                        <span class="k">if</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files_in_archive</span><span class="p">:</span>
+                            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">db_root</span><span class="p">,</span> <span class="n">file</span><span class="p">))</span>
+                            <span class="n">files_in_archive</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+                            <span class="n">backend</span><span class="o">.</span><span class="n">put_archive</span><span class="p">(</span>
+                                <span class="n">db_root</span><span class="p">,</span>
+                                <span class="n">remote_archive</span><span class="p">,</span>
+                                <span class="n">version</span><span class="p">,</span>
+                                <span class="n">files</span><span class="o">=</span><span class="n">files_in_archive</span><span class="p">,</span>
+                            <span class="p">)</span>
+
+                    <span class="c1"># mark file as removed</span>
+                    <span class="n">deps</span><span class="o">.</span><span class="n">_remove</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+                    <span class="n">upload</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="c1"># upload dependencies</span>
+            <span class="k">if</span> <span class="n">upload</span><span class="p">:</span>
+                <span class="n">deps</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">deps_path</span><span class="p">)</span>
+                <span class="n">remote_archive</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">define</span><span class="o">.</span><span class="n">DB</span> <span class="o">+</span> <span class="s1">&#39;.zip&#39;</span><span class="p">)</span>
+                <span class="n">backend</span><span class="o">.</span><span class="n">put_archive</span><span class="p">(</span>
+                    <span class="n">db_root</span><span class="p">,</span>
+                    <span class="n">remote_archive</span><span class="p">,</span>
+                    <span class="n">version</span><span class="p">,</span>
+                    <span class="n">files</span><span class="o">=</span><span class="n">define</span><span class="o">.</span><span class="n">DEPENDENCIES_FILE</span><span class="p">,</span>
+                    <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                <span class="p">)</span>
+
+
+<div class="viewcode-block" id="repository"><a class="viewcode-back" href="../../../api/audb.repository.html#audb.repository">[docs]</a><span class="k">def</span> <span class="nf">repository</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Repository</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return repository that stores the requested database.</span>
+
+<span class="sd">    If the database is stored in several repositories,</span>
+<span class="sd">    only the first one is returned.</span>
+<span class="sd">    The order of the repositories to look for the database</span>
+<span class="sd">    is given by :attr:`config.REPOSITORIES`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: database name</span>
+<span class="sd">        version: version string</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        repository that contains the database</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError: if database or version is not found</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; audb.repository(&#39;emodb&#39;, &#39;1.4.1&#39;)</span>
+<span class="sd">        Repository(&#39;data-public&#39;, &#39;https://audeering.jfrog.io/artifactory&#39;, &#39;artifactory&#39;)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">versions</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Cannot find database &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">_lookup</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<span class="k">def</span> <span class="nf">versions</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Available versions of database.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: name of database</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list of versions</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; versions(&#39;emodb&#39;)</span>
+<span class="sd">        [&#39;1.1.0&#39;, &#39;1.1.1&#39;, &#39;1.2.0&#39;, &#39;1.3.0&#39;, &#39;1.4.0&#39;, &#39;1.4.1&#39;]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">vs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">repository</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">REPOSITORIES</span><span class="p">:</span>
+        <span class="n">backend</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">access_backend</span><span class="p">(</span><span class="n">repository</span><span class="p">)</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;db.yaml&#39;</span><span class="p">)</span>
+        <span class="n">vs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">versions</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">suppress_backend_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">audeer</span><span class="o">.</span><span class="n">sort_versions</span><span class="p">(</span><span class="n">vs</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div>
+    <p>
+        
+        
+        
+          Built with <a href="https://www.sphinx-doc.org/en/master/">Sphinx</a> on 2024/01/10 using the <a href="https://github.com/audeering/sphinx-audeering-theme/">audEERING theme</a>
+        
+    </p>
+  </div>
+
+  <div role="contentinfo">
+    <p>
+        
+      &copy; 2023-2024 audEERING GmbH
+    </p>
+  </div> 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

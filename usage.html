@@ -1,0 +1,314 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Usage &mdash; sphinx-apipages</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/audeering.css" type="text/css" />
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="audb" href="api/audb.html" />
+    <link rel="prev" title="Installation" href="install.html" />
+    
+  
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          <a href="index.html">
+          
+            <img src="_static/images/audeering.png" class="logo" alt="audEERING"/>
+          
+          
+            <span> sphinx-apipages</span>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#custom-templates">Custom templates</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Example API Docs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/audb.html">audb</a></li>
+<li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">sphinx-apipages</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Usage</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/audeering/sphinx-apipages/" class="fa fa-github"> GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h1>
+<p>In your <a class="reference external" href="https://www.sphinx-doc.org">sphinx</a> config file
+(e.g. <code class="docutils literal notranslate"><span class="pre">docs/conf.py</span></code>)
+add</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">extensions</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># ...</span>
+    <span class="s2">&quot;sphinx_apipages&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>And make sure to not list
+<code class="docutils literal notranslate"><span class="pre">sphinx.ext.autodoc</span></code>
+and
+<code class="docutils literal notranslate"><span class="pre">sphinx.ext.autosummary</span></code>
+there,
+as those are automatically
+added by <code class="docutils literal notranslate"><span class="pre">sphinx_apipages</span></code>.</p>
+<p>For each (sub-)module
+you would like to generate API documentation,
+add a file with the name of the module
+to <code class="docutils literal notranslate"><span class="pre">docs/api-src/</span></code>
+and list the functions/classes
+to include with <code class="docutils literal notranslate"><span class="pre">autosummary</span></code>,
+compare <a class="reference internal" href="api/audb.html#audb"><span class="std std-ref">API documentation example with audb</span></a>.</p>
+<p>When building the documentation,
+<code class="docutils literal notranslate"><span class="pre">sphinx_apipages</span></code> will copy all files
+from <code class="docutils literal notranslate"><span class="pre">docs/api-src/</span></code>
+to <code class="docutils literal notranslate"><span class="pre">docs/api/</span></code>,
+and generate RST files
+for each class and function,
+and store them under <code class="docutils literal notranslate"><span class="pre">docs/api/</span></code>
+as well.</p>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading">¶</a></h2>
+<p>The following configurations are possible.</p>
+<dl>
+<dt><code class="docutils literal notranslate"><span class="pre">apipages_src_dir</span></code></dt><dd><div class="line-block">
+<div class="line">Folder holding the API source files.</div>
+<div class="line">Default: <code class="docutils literal notranslate"><span class="pre">&quot;docs/api-src&quot;</span></code></div>
+</div>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">apipages_dst_dir</span></code></dt><dd><div class="line-block">
+<div class="line">Folder storing the generated RST files from which the API documentation is build.</div>
+<div class="line">Default: <code class="docutils literal notranslate"><span class="pre">&quot;docs/api&quot;</span></code></div>
+</div>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">apipages_hidden_methods</span></code></dt><dd><div class="line-block">
+<div class="line">List of hidden class methods that should be included in class documentations.</div>
+<div class="line">Default: <code class="docutils literal notranslate"><span class="pre">[&quot;__call__&quot;]</span></code></div>
+</div>
+</dd>
+</dl>
+</div>
+<div class="section" id="custom-templates">
+<h2>Custom templates<a class="headerlink" href="#custom-templates" title="Permalink to this heading">¶</a></h2>
+<p>You can overwrite
+how functions and classes are documented
+by providing <a class="reference internal" href="#custom-templates">custom templates</a>.
+E.g. you can create a file
+<code class="docutils literal notranslate"><span class="pre">docs/_templates/autosummary/class.rst</span></code>
+to specify how classes are rendered.
+You will need to add <code class="docutils literal notranslate"><span class="pre">templates_path</span> <span class="pre">=</span> <span class="pre">[&quot;_templates&quot;]</span></code>
+to your <a class="reference external" href="https://www.sphinx-doc.org">sphinx</a> config file
+(e.g. <code class="docutils literal notranslate"><span class="pre">docs/conf.py</span></code>).</p>
+<p>Inside the template you can access the <code class="docutils literal notranslate"><span class="pre">apipages_hidden_methods</span></code> list
+by <code class="docutils literal notranslate"><span class="pre">hidden_methods</span></code>.
+The default template for classes is:</p>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span>{{ objname | escape | underline}}
+
+<span class="p">..</span> <span class="ow">currentmodule</span><span class="p">::</span> {{ module }}
+
+<span class="p">..</span> <span class="ow">autoclass</span><span class="p">::</span> {{ objname }}
+
+{% block methods %}
+{%- for item in (all_methods + attributes)|sort %}
+    {%- if not item.startswith(&#39;_&#39;) or item in hidden_methods %}
+        {%- if item in all_methods %}
+{{ (item + &#39;()&#39;) | escape | underline(line=&#39;-&#39;) }}
+<span class="p">..</span> <span class="ow">automethod</span><span class="p">::</span> {{ name }}.{{ item }}
+        {%- elif item in attributes %}
+{{ item | escape | underline(line=&#39;-&#39;) }}
+<span class="p">..</span> <span class="ow">autoattribute</span><span class="p">::</span> {{ name }}.{{ item }}
+        {%- endif %}
+    {% endif %}
+{%- endfor %}
+{% endblock %}
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="api/audb.html" class="btn btn-neutral float-right" title="audb" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="install.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div>
+    <p>
+        
+        
+        
+          Built with <a href="https://www.sphinx-doc.org/en/master/">Sphinx</a> on 2024/01/10 using the <a href="https://github.com/audeering/sphinx-audeering-theme/">audEERING theme</a>
+        
+    </p>
+  </div>
+
+  <div role="contentinfo">
+    <p>
+        
+      &copy; 2023-2024 audEERING GmbH
+    </p>
+  </div> 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/clipboard.min.js"></script>
+        <script src="_static/copybutton.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
