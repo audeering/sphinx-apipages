@@ -27,9 +27,14 @@ package_dir = os.path.abspath(os.path.dirname(__file__))
 # ===== MAIN FUNCTION SPHINX EXTENSION ====================================
 def setup(app: sphinx.application.Sphinx):
     r"""Modelcard Sphinx extension."""
+    # Load dependent extensions
+    app.setup_extension("sphinx.ext.autodoc")
+    app.setup_extension("sphinx.ext.autosummary")
+
     # Add config values
     app.add_config_value("apipages_src_dir", "docs/api-src", False)
     app.add_config_value("apipages_dst_dir", "docs/api", False)
+    app.add_config_value("apipages_hidden_methods", ["__call__"], False)
 
     # Extend templates_path for autosummary templates
     templates_path = audeer.path(package_dir, "templates")
@@ -38,10 +43,19 @@ def setup(app: sphinx.application.Sphinx):
     else:
         app.config.templates_path = templates_path
 
-    # Connect builder
-    app.connect("builder-inited", builder_inited)
+    # Disable auto-generation of TOC entries in the API
+    # https://github.com/sphinx-doc/sphinx/issues/6316
+    app.config.toc_object_entries = False
 
-    return {"version": __version__, "parallel_read_safe": True}
+    # Make apipages_hidden_methods visible in templates
+    app.config.autosummary_context = {
+        "hidden_methods": app.config.apipages_hidden_methods,
+    }
+
+    # Connect events
+    app.connect("config-inited", config_inited)
+
+    return {"version": __version__, "parallel_read_safe": False}
 
 
 # ===== SPHINX EXTENSION FUNCTIONS ========================================
@@ -51,12 +65,8 @@ def setup(app: sphinx.application.Sphinx):
 # via app.connect()
 # in setup()
 #
-def builder_inited(app: sphinx.application.Sphinx):
-    r"""Emitted when the builder object has been created.
-
-    It is available as ``app.builder``.
-
-    """
+def config_inited(app: sphinx.application.Sphinx, config):
+    r"""Emitted when the config object has been initialized."""
     # Read config values
     src_dir = app.config.apipages_src_dir
     dst_dir = app.config.apipages_dst_dir
@@ -74,4 +84,4 @@ def builder_inited(app: sphinx.application.Sphinx):
                 not os.path.exists(dst_file)  # new file
                 or not filecmp.cmp(src_file, dst_file)  # changed file
             ):
-                shutil.copyfile(src_file, dst_file)  # Find model cards
+                shutil.copyfile(src_file, dst_file)
