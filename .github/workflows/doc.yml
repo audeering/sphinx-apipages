@@ -35,5 +35,6 @@ jobs:
     - name: Test building documentation
       run: python -m sphinx docs/ docs/_build/ -b html -W
 
-    - name: Check links in documentation
-      run: python -m sphinx docs/ docs/_build/ -b linkcheck -W
+    # Don't check links until we have a release
+    #- name: Check links in documentation
+    #  run: python -m sphinx docs/ docs/_build/ -b linkcheck -W
