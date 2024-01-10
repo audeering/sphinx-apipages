@@ -40,11 +40,6 @@ def setup(app: sphinx.application.Sphinx):
     # https://github.com/sphinx-doc/sphinx/issues/6316
     app.config.toc_object_entries = False
 
-    # Make apipages_hidden_methods visible in templates
-    app.config.autosummary_context = {
-        "hidden_methods": app.config.apipages_hidden_methods,
-    }
-
     # Connect events
     app.connect("config-inited", config_inited)
 
@@ -70,6 +65,11 @@ def config_inited(app: sphinx.application.Sphinx, config):
         app.config.templates_path.append(templates_path)
     else:
         app.config.templates_path = templates_path
+
+    # Make apipages_hidden_methods visible in templates
+    app.config.autosummary_context = {
+        "hidden_methods": app.config.apipages_hidden_methods,
+    }
 
     # Copy API (sub-)module RST files to dst folder
     if os.path.exists(src_dir):
