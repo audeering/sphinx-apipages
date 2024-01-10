@@ -52,8 +52,8 @@ def setup(app: sphinx.application.Sphinx):
         "hidden_methods": app.config.apipages_hidden_methods,
     }
 
-    # Connect builder
-    app.connect("builder-inited", builder_inited)
+    # Connect events
+    app.connect("config-inited", config_inited)
 
     return {"version": __version__, "parallel_read_safe": False}
 
@@ -65,12 +65,8 @@ def setup(app: sphinx.application.Sphinx):
 # via app.connect()
 # in setup()
 #
-def builder_inited(app: sphinx.application.Sphinx):
-    r"""Emitted when the builder object has been created.
-
-    It is available as ``app.builder``.
-
-    """
+def config_inited(app: sphinx.application.Sphinx, config):
+    r"""Emitted when the config object has been initialized."""
     # Read config values
     src_dir = app.config.apipages_src_dir
     dst_dir = app.config.apipages_dst_dir
@@ -89,4 +85,3 @@ def builder_inited(app: sphinx.application.Sphinx):
                 or not filecmp.cmp(src_file, dst_file)  # changed file
             ):
                 shutil.copyfile(src_file, dst_file)
-                app.config.autosummary_generate.append(dst_file)
