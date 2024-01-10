@@ -35,19 +35,17 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_apipages",
 ]
-
-napoleon_use_ivar = True  # List of class attributes
-
-# Exclude all non-generated files from autosummary
-# to skip `usage.rst`
-autosummary_generate = []
-
 intersphinx_mapping = {
     "audb": ("https://audeering.github.io/audb/", None),
 }
 linkcheck_ignore = [
     "https://www.sphinx-doc.org/",
 ]
+copybutton_prompt_text = r">>> |\.\.\. |$ "
+copybutton_prompt_is_regexp = True
+autodoc_default_options = {
+    "undoc-members": False,
+}
 
 # HTML --------------------------------------------------------------------
 html_theme = "sphinx_audeering_theme"
