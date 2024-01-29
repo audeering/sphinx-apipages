@@ -75,9 +75,14 @@ def config_inited(app: sphinx.application.Sphinx, config):
     if os.path.exists(src_dir):
         audeer.mkdir(dst_dir)
         api_src_files = audeer.list_file_names(src_dir)
+        api_old_dst_files = audeer.list_file_names(dst_dir)
         api_dst_files = [
             audeer.path(dst_dir, os.path.basename(src_file))
             for src_file in api_src_files
+        ]
+        api_old_dst_files = [
+            file for file in api_old_dst_files
+            if file not in api_dst_files
         ]
         for src_file, dst_file in zip(api_src_files, api_dst_files):
             if (
@@ -85,3 +90,5 @@ def config_inited(app: sphinx.application.Sphinx, config):
                 or not filecmp.cmp(src_file, dst_file)  # changed file
             ):
                 shutil.copyfile(src_file, dst_file)
+        for old_dst_file in api_old_dst_files:
+            os.remove(old_dst_file)
