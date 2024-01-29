@@ -81,8 +81,7 @@ def config_inited(app: sphinx.application.Sphinx, config):
             for src_file in api_src_files
         ]
         api_old_dst_files = [
-            file for file in api_old_dst_files
-            if file not in api_dst_files
+            file for file in api_old_dst_files if file not in api_dst_files
         ]
         for src_file, dst_file in zip(api_src_files, api_dst_files):
             if (
