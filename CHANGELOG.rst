@@ -7,6 +7,17 @@ The format is based on `Keep a Changelog`_,
 and this project adheres to `Semantic Versioning`_.
 
 
+Version 0.1.3 (2024-01-29)
+--------------------------
+
+* Fixed: remove files from API destination folder
+  (``docs/api/``)
+  that are not listed
+  in the API source folder
+  (``docs/api-src``)
+  before building the docs
+
+
 Version 0.1.2 (2024-01-10)
 --------------------------
 
