@@ -10,6 +10,7 @@ and builds the documentation afterwards,
 ignoting all files inside ``apipages_src_dir``.
 
 """
+
 import filecmp
 import os
 import shutil
