@@ -7,6 +7,17 @@ The format is based on `Keep a Changelog`_,
 and this project adheres to `Semantic Versioning`_.
 
 
+Version 0.2.0 (2026-04-15)
+--------------------------
+
+* Added: support for Python 3.11
+* Added: support for Python 3.12
+* Added: support for Python 3.13
+* Added: support for Python 3.14
+* Changed: manage project with ``uv``
+* Changed: exclude ``docs/`` folder from the Python package
+
+
 Version 0.1.3 (2024-01-29)
 --------------------------
 
