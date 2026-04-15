@@ -63,7 +63,7 @@
             
             
               <div class="version">
-                v0.1.3
+                v0.2.0
               </div>
             
           
@@ -138,12 +138,190 @@
            <div itemprop="articleBody">
             
   <h1>Source code for audb.core.repository</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">audbackend</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">audbackend</span>
 
 
-<div class="viewcode-block" id="Repository"><a class="viewcode-back" href="../../../api/audb.Repository.html#audb.Repository">[docs]</a><span class="k">class</span> <span class="nc">Repository</span><span class="p">(</span><span class="n">audbackend</span><span class="o">.</span><span class="n">Repository</span><span class="p">):</span>
-    <span class="vm">__doc__</span> <span class="o">=</span> <span class="n">audbackend</span><span class="o">.</span><span class="n">Repository</span><span class="o">.</span><span class="vm">__doc__</span>
-    <span class="k">pass</span></div>
+<div class="viewcode-block" id="Repository">
+<a class="viewcode-back" href="../../../api/audb.Repository.html#audb.Repository">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Repository</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Repository object.</span>
+
+<span class="sd">    It stores all information</span>
+<span class="sd">    needed to address a repository:</span>
+<span class="sd">    the repository name,</span>
+<span class="sd">    host,</span>
+<span class="sd">    and the backend name.</span>
+<span class="sd">    With :meth:`Repository.create_backend_interface`</span>
+<span class="sd">    it also provides a method</span>
+<span class="sd">    to create a backend interface</span>
+<span class="sd">    to access the repository.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: repository name</span>
+<span class="sd">        host: repository host</span>
+<span class="sd">        backend: repository backend</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; Repository(&quot;data-local&quot;, &quot;/data&quot;, &quot;file-system&quot;)</span>
+<span class="sd">        Repository(&#39;data-local&#39;, &#39;/data&#39;, &#39;file-system&#39;)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_backends</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;file-system&quot;</span><span class="p">:</span> <span class="n">audbackend</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">FileSystem</span><span class="p">,</span>
+        <span class="s2">&quot;minio&quot;</span><span class="p">:</span> <span class="n">audbackend</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">Minio</span><span class="p">,</span>
+        <span class="s2">&quot;s3&quot;</span><span class="p">:</span> <span class="n">audbackend</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">Minio</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">audbackend</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="s2">&quot;Artifactory&quot;</span><span class="p">):</span>
+        <span class="n">_backends</span><span class="p">[</span><span class="s2">&quot;artifactory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">audbackend</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">Artifactory</span>  <span class="c1"># pragma: no cover</span>
+
+    <span class="n">backend_registry</span> <span class="o">=</span> <span class="n">_backends</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Backend registry.</span>
+
+<span class="sd">    Holds mapping between registered backend names,</span>
+<span class="sd">    and their corresponding backend classes.</span>
+<span class="sd">    The ``&quot;artifactory&quot;`` backend is currently not available</span>
+<span class="sd">    under Python &gt;=3.13.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Repository name.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Repository host.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Repository backend name.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compare two repository instances.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: repository instance</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ``True`` if the string representation of the repositories matches</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Hash of repository.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            hash of repository</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># noqa: D105</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Repository(&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="si">}</span><span class="s2">&#39;, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;)&quot;</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="Repository.create_backend_interface">
+<a class="viewcode-back" href="../../../api/audb.Repository.html#audb.Repository.create_backend_interface">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_backend_interface</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">audbackend</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">Base</span><span class="p">]:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Create backend interface to access repository.</span>
+
+<span class="sd">        It wraps an :class:`audbackend.interface.Versioned` interface</span>
+<span class="sd">        around it.</span>
+<span class="sd">        The files will then be stored</span>
+<span class="sd">        with the following structure on the backend</span>
+<span class="sd">        (shown by the example of version 1.0.0 of the emodb dataset)::</span>
+
+<span class="sd">            emodb/1.0.0/db.yaml            &lt;-- header</span>
+<span class="sd">            emodb/1.0.0/db.zip             &lt;-- dependency table</span>
+<span class="sd">            emodb/attachment/1.0.0/...     &lt;-- attachments</span>
+<span class="sd">            emodb/media/1.0.0/...          &lt;-- media files</span>
+<span class="sd">            emodb/meta/1.0.0/...           &lt;-- tables</span>
+
+<span class="sd">        When :attr:`Repository.backend` equals ``artifactory``,</span>
+<span class="sd">        it wraps an :class:`audbackend.interface.Maven` interface</span>
+<span class="sd">        around it.</span>
+<span class="sd">        The files will then be stored</span>
+<span class="sd">        with the following structure on the Artifactory backend</span>
+<span class="sd">        (shown by the example of version 1.0.0 of the emodb dataset)::</span>
+
+<span class="sd">            emodb/db/1.0.0/db-1.0.0.yaml   &lt;-- header</span>
+<span class="sd">            emodb/db/1.0.0/db-1.0.0.zip    &lt;-- dependency table</span>
+<span class="sd">            emodb/attachment/.../1.0.0/... &lt;-- attachments</span>
+<span class="sd">            emodb/media/.../1.0.0/...      &lt;-- media files</span>
+<span class="sd">            emodb/meta/.../1.0.0/...       &lt;-- tables</span>
+
+<span class="sd">        The returned backend instance</span>
+<span class="sd">        has not yet established a connection to the backend.</span>
+<span class="sd">        To establish a connection,</span>
+<span class="sd">        use the backend with a ``with`` statement,</span>
+<span class="sd">        or use the ``open()`` and ``close()`` methods of the backend class.</span>
+<span class="sd">        The backend is stored as the inside the ``backend`` attribute</span>
+<span class="sd">        of the returned backend interface.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            interface to repository</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: if an artifactory backend is requested in Python&gt;=3.13</span>
+<span class="sd">            ValueError: if a non-supported backend is requested</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;artifactory&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>  <span class="c1"># pragma: no cover</span>
+                <span class="s2">&quot;The &#39;artifactory&#39; backend is not supported in Python&gt;=3.13&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend_registry</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39; is not a registered backend&quot;</span><span class="p">)</span>
+        <span class="n">backend_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend_registry</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">]</span>
+        <span class="n">backend</span> <span class="o">=</span> <span class="n">backend_class</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;artifactory&quot;</span><span class="p">:</span>
+            <span class="n">interface</span> <span class="o">=</span> <span class="n">audbackend</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">Maven</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">interface</span> <span class="o">=</span> <span class="n">audbackend</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">Versioned</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">interface</span></div>
+
+
+<div class="viewcode-block" id="Repository.register">
+<a class="viewcode-back" href="../../../api/audb.Repository.html#audb.Repository.register">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">backend_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">backend_class</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">audbackend</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">Base</span><span class="p">],</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Register backend class.</span>
+
+<span class="sd">        Adds an entry to the dictionary</span>
+<span class="sd">        stored in the class variable :data:`Repository.backend_registry`,</span>
+<span class="sd">        mapping a backend name</span>
+<span class="sd">        to an actual backend class.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            backend_name: name of the backend,</span>
+<span class="sd">                e.g. ``&quot;file-system&quot;``</span>
+<span class="sd">            backend_class: class of the backend,</span>
+<span class="sd">                that should be associated with ``backend_name``,</span>
+<span class="sd">                e.g. ``&quot;audbackend.backend.Filesystem&quot;``</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; import audbackend</span>
+<span class="sd">            &gt;&gt;&gt; audb.Repository.register(&quot;file-system&quot;, audbackend.backend.FileSystem)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">backend_registry</span><span class="p">[</span><span class="n">backend_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">backend_class</span></div>
+</div>
+
 </pre></div>
 
            </div>
@@ -159,7 +337,7 @@
         
         
         
-          Built with <a href="https://www.sphinx-doc.org/en/master/">Sphinx</a> on 2024/01/29 using the <a href="https://github.com/audeering/sphinx-audeering-theme/">audEERING theme</a>
+          Built with <a href="https://www.sphinx-doc.org">Sphinx</a> on 2026/04/15 using the <a href="https://github.com/audeering/sphinx-audeering-theme/">audEERING theme</a>
         
     </p>
   </div>
@@ -167,7 +345,7 @@
   <div role="contentinfo">
     <p>
         
-      &copy; 2023-2024 audEERING GmbH
+      &copy; 2023-2026 audEERING GmbH
     </p>
   </div> 
 
@@ -191,18 +369,16 @@
     
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
-        <script src="../../../_static/clipboard.min.js"></script>
-        <script src="../../../_static/copybutton.js"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../../_static/copybutton.js?v=e57ba844"></script>
     
 
   
 
+  <script type="text/javascript" src="../../../_static/js/jquery.js"></script>
   <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
   <script type="text/javascript">

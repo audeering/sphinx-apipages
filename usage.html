@@ -5,7 +5,8 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Usage &mdash; sphinx-apipages</title>
@@ -65,7 +66,7 @@
             
             
               <div class="version">
-                v0.1.3
+                v0.2.0
               </div>
             
           
@@ -143,8 +144,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="usage">
-<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h1>
+  <section id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h1>
 <p>In your <a class="reference external" href="https://www.sphinx-doc.org">sphinx</a> config file
 (e.g. <code class="docutils literal notranslate"><span class="pre">docs/conf.py</span></code>)
 add</p>
@@ -176,8 +177,8 @@ and generate RST files
 for each class and function,
 and store them under <code class="docutils literal notranslate"><span class="pre">docs/api/</span></code>
 as well.</p>
-<div class="section" id="configuration">
-<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading">¶</a></h2>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">¶</a></h2>
 <p>The following configurations are possible.</p>
 <dl>
 <dt><code class="docutils literal notranslate"><span class="pre">apipages_src_dir</span></code></dt><dd><div class="line-block">
@@ -196,9 +197,9 @@ as well.</p>
 </div>
 </dd>
 </dl>
-</div>
-<div class="section" id="custom-templates">
-<h2>Custom templates<a class="headerlink" href="#custom-templates" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="custom-templates">
+<h2>Custom templates<a class="headerlink" href="#custom-templates" title="Link to this heading">¶</a></h2>
 <p>You can overwrite
 how functions and classes are documented
 by providing <a class="reference internal" href="#custom-templates">custom templates</a>.
@@ -237,7 +238,7 @@ by <code class="docutils literal notranslate"><span class="pre">hidden_methods</
 
 <span class="p">..</span> <span class="ow">currentmodule</span><span class="p">::</span> {{ module }}
 
-<span class="cp">.. auto{{ objtype }}:: {{ fullname }}</span>
+<span class="c">.. auto{{ objtype }}:: {{ fullname }}</span>
 </pre></div>
 </div>
 <p>The default template otherwise is <code class="docutils literal notranslate"><span class="pre">autosummary/base.rst</span></code>:</p>
@@ -245,11 +246,11 @@ by <code class="docutils literal notranslate"><span class="pre">hidden_methods</
 
 <span class="p">..</span> <span class="ow">currentmodule</span><span class="p">::</span> {{ module }}
 
-<span class="cp">.. auto{{ objtype }}:: {{ fullname }}</span>
+<span class="c">.. auto{{ objtype }}:: {{ fullname }}</span>
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
@@ -274,7 +275,7 @@ by <code class="docutils literal notranslate"><span class="pre">hidden_methods</
         
         
         
-          Built with <a href="https://www.sphinx-doc.org/en/master/">Sphinx</a> on 2024/01/29 using the <a href="https://github.com/audeering/sphinx-audeering-theme/">audEERING theme</a>
+          Built with <a href="https://www.sphinx-doc.org">Sphinx</a> on 2026/04/15 using the <a href="https://github.com/audeering/sphinx-audeering-theme/">audEERING theme</a>
         
     </p>
   </div>
@@ -282,7 +283,7 @@ by <code class="docutils literal notranslate"><span class="pre">hidden_methods</
   <div role="contentinfo">
     <p>
         
-      &copy; 2023-2024 audEERING GmbH
+      &copy; 2023-2026 audEERING GmbH
     </p>
   </div> 
 
@@ -306,18 +307,16 @@ by <code class="docutils literal notranslate"><span class="pre">hidden_methods</
     
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
-        <script src="_static/clipboard.min.js"></script>
-        <script src="_static/copybutton.js"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=9bcbadda"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="_static/copybutton.js?v=e57ba844"></script>
     
 
   
 
+  <script type="text/javascript" src="_static/js/jquery.js"></script>
   <script type="text/javascript" src="_static/js/theme.js"></script>
 
   <script type="text/javascript">
