@@ -51,6 +51,19 @@ requires = ['setuptools>=45', 'setuptools_scm[toml]>=6.2']
 build-backend = 'setuptools.build_meta'
 
 
+# ===== DEPENDENCY-GROUPS =================================================
+#
+[dependency-groups]
+dev = [
+    'audb',
+    'sphinx >=7.2',
+    'sphinx-audeering-theme',
+    'sphinx-autodoc-typehints',
+    'sphinx-copybutton',
+    'toml',
+]
+
+
 # ===== TOOL ==============================================================
 #
 
