@@ -10,7 +10,6 @@ for each function and class.
 
 Have a look at the installation_ and usage_ instructions.
 
-Debug
 
 .. _autodoc: https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
 .. _autosummary: https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html
